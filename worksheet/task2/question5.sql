@@ -8,9 +8,10 @@ SELECT s.StudentId,
        COALESCE(SUM(pc.Credits), 0) AS TotalCreditsPassed
 FROM student s
 LEFT JOIN (
-    SELECT DISTINCT e.StudentId, e.CourseId
+    SELECT e.StudentId, e.CourseId
     FROM enrolment e
-    WHERE e.Grade >= 40
+    GROUP BY e.StudentId, e.CourseId
+    HAVING MAX(e.Grade) >= 40
 ) passed ON s.StudentId = passed.StudentId
 LEFT JOIN course pc ON passed.CourseId = pc.CourseId
 GROUP BY s.StudentId, s.FirstName, s.LastName;
