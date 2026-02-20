@@ -5,13 +5,9 @@
 SELECT s.StudentId,
        s.FirstName,
        s.LastName,
-       COALESCE(SUM(pc.Credits), 0) AS TotalCreditsPassed
+       SUM(m.Credits) AS TotalCreditsPassed
 FROM student s
-LEFT JOIN (
-    SELECT e.StudentId, e.CourseId
-    FROM enrolment e
-    GROUP BY e.StudentId, e.CourseId
-    HAVING MAX(e.Grade) >= 40
-) passed ON s.StudentId = passed.StudentId
-LEFT JOIN course pc ON passed.CourseId = pc.CourseId
+JOIN enrolments e ON s.StudentId = e.StudentId
+JOIN modules m ON e.ModuleId = m.ModuleId
+WHERE e.Grade >= 40
 GROUP BY s.StudentId, s.FirstName, s.LastName;
