@@ -2,9 +2,15 @@
 -- Expected Columns:
 -- StudentId, FirstName, LastName, TotalCreditsPassed
 
-SELECT s.StudentId, s.FirstName, s.LastName, 
-       COALESCE(SUM(c.Credits), 0) AS TotalCreditsPassed
+SELECT s.StudentId,
+       s.FirstName,
+       s.LastName,
+       COALESCE(SUM(pc.Credits), 0) AS TotalCreditsPassed
 FROM student s
-LEFT JOIN enrolment e ON s.StudentId = e.StudentId AND e.Grade >= 40
-LEFT JOIN course c ON e.CourseId = c.CourseId
+LEFT JOIN (
+    SELECT DISTINCT e.StudentId, e.CourseId
+    FROM enrolment e
+    WHERE e.Grade >= 40
+) passed ON s.StudentId = passed.StudentId
+LEFT JOIN course pc ON passed.CourseId = pc.CourseId
 GROUP BY s.StudentId, s.FirstName, s.LastName;
